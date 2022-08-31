@@ -1,8 +1,8 @@
 library(tidyverse)
 library(ggplot2)
 library(lme4)
-stipa.forb <- read.csv("~/Downloads/stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
-blockkey <- read.csv("~/Downloads/block-key.csv")%>%
+stipa.forb <- read.csv("~/Downloads/Stipa-Forb/stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
+blockkey <- read.csv("~/Downloads/Stipa-Forb/block-key.csv")%>%
   select(block, treatment)
 stipa.forb <- stipa.forb %>% left_join(blockkey, by = "block")
 
@@ -13,11 +13,11 @@ ggplot(stipa.forb, aes(x=phyto, y=total.biomass.g, color=treatment)) +
 stipa.forb.summary <- stipa.forb %>% 
   group_by(name, treatment) %>%
   dplyr::summarise(
-    biomass.mean = mean(total.biomass.g),
-    biomass.sd = sd(total.biomass.g),
+    biomass.mean = mean(total.biomass.g, na.rm =TRUE),
+    biomass.sd = sd(total.biomass.g, na.rm =TRUE),
     biomass.se = biomass.sd/sqrt(length(total.biomass.g)),
-    phyto.mean = mean(phyto),
-    phyto.sd = sd(phyto),
+    phyto.mean = mean(phyto, na.rm =TRUE),
+    phyto.sd = sd(phyto, na.rm =TRUE),
     phyto.se = biomass.sd/sqrt(length(phyto))
   )
 
