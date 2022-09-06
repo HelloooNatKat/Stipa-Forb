@@ -4,11 +4,28 @@ library(lme4)
 stipa.forb <- read.csv("~/Downloads/Stipa-Forb/stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
 blockkey <- read.csv("~/Downloads/Stipa-Forb/block-key.csv")%>%
   select(block, treatment)
+
+## Carmen File Paths
+#stipa.forb <- read.csv("stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
+#blockkey <- read.csv("block-key.csv")%>%
+#  select(block, treatment)
+
+
+
 stipa.forb <- stipa.forb %>% left_join(blockkey, by = "block")
+
+
 
 ggplot(stipa.forb, aes(x=phyto, y=total.biomass.g, color=treatment)) + 
   facet_wrap(vars(name),scales="free") + 
   geom_point()
+
+## 7 rows contain missing values?
+missing_vals <- stipa.forb %>%
+  filter(is.na(total.biomass.g)) 
+    ## looks like phyto num is 0 for these 7 values. 
+    ## are these part of what will become phyto survival data or are they accidentally in this processing dataframe?
+
 
 stipa.forb.summary <- stipa.forb %>% 
   group_by(name, treatment) %>%
@@ -20,6 +37,7 @@ stipa.forb.summary <- stipa.forb %>%
     phyto.sd = sd(phyto, na.rm =TRUE),
     phyto.se = biomass.sd/sqrt(length(phyto))
   )
+
 
 ggplot(stipa.forb.summary, 
        aes(x = name, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
