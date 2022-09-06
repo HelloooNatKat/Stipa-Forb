@@ -8,12 +8,14 @@ blockkey <- read.csv("~/Downloads/Stipa-Forb/block-key.csv")%>%
 ## Carmen File Paths
 #stipa.forb <- read.csv("stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
 #blockkey <- read.csv("block-key.csv")%>%
-#  select(block, treatment)
+  #select(block, treatment)
 
 
 
 stipa.forb <- stipa.forb %>% left_join(blockkey, by = "block")
+## I'm guessing these are all phytos from the stipa background? We should explicitly include a background column here as we will need to compare the Stipa and BRHO backgrounds 
 
+## this is accounted for in the new data cleaning script
 
 
 ggplot(stipa.forb, aes(x=phyto, y=total.biomass.g, color=treatment)) + 
@@ -26,6 +28,7 @@ missing_vals <- stipa.forb %>%
     ## looks like phyto num is 0 for these 7 values. 
     ## are these part of what will become phyto survival data or are they accidentally in this processing dataframe?
 
+## is total biomass per capita yet
 
 stipa.forb.summary <- stipa.forb %>% 
   group_by(name, treatment) %>%
@@ -77,4 +80,41 @@ summary(model.biomass.3)
 # the "*" means = a + b AND the interaction between these two 
 # the "Intercept" biomass is ANAR (R just chooses a random species to be intercept)
 # not too great of a model, it's just summing what we already see...
+
+###CODING WITH CARMEN
+stipa.brho.all <- read.csv("stipa-forb-brho_all-data.csv")
+
+stipa.brho.all.summary <- stipa.brho.all %>% 
+  group_by(bkgrd, treatment, phyto) %>%
+  dplyr::summarise(
+    biomass.mean = mean(total.biomass.g, na.rm =TRUE),
+    biomass.sd = sd(total.biomass.g, na.rm =TRUE),
+    biomass.se = biomass.sd/sqrt(length(total.biomass.g)),
+    phyto.mean = mean(phyto.n.indiv, na.rm =TRUE),
+    phyto.sd = sd(phyto.n.indiv, na.rm =TRUE),
+    phyto.se = biomass.sd/sqrt(length(phyto.n.indiv))
+  )
+
+ggplot(stipa.brho.all.summary, 
+       aes(x = phyto, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
+           color = treatment)) +
+  facet_wrap(vars(bkgrd),scales="free") + 
+  geom_point() +
+  geom_errorbar() +
+  theme_classic() +
+  xlab("Focal Species") +
+  ylab("Biomass (g)") +
+  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
+
+ggplot(stipa.brho.all.summary, 
+       aes(x = phyto, y = phyto.mean, ymin = phyto.mean - phyto.se, ymax = phyto.mean + phyto.se,
+           color = treatment)) +
+  facet_wrap(vars(bkgrd),scales="free") + 
+  geom_point() +
+  geom_errorbar() +
+  theme_classic() +
+  xlab("Focal Species") +
+  ylab("Number of Individuals") +
+  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
+#treatment may not affect emergence 
 
