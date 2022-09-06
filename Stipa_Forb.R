@@ -8,12 +8,14 @@ blockkey <- read.csv("~/Downloads/Stipa-Forb/block-key.csv")%>%
 ## Carmen File Paths
 #stipa.forb <- read.csv("stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
 #blockkey <- read.csv("block-key.csv")%>%
-#  select(block, treatment)
+  #select(block, treatment)
 
 
 
 stipa.forb <- stipa.forb %>% left_join(blockkey, by = "block")
+## I'm guessing these are all phytos from the stipa background? We should explicitly include a background column here as we will need to compare the Stipa and BRHO backgrounds 
 
+## this is accounted for in the new data cleaning script
 
 
 ggplot(stipa.forb, aes(x=phyto, y=total.biomass.g, color=treatment)) + 
@@ -26,6 +28,7 @@ missing_vals <- stipa.forb %>%
     ## looks like phyto num is 0 for these 7 values. 
     ## are these part of what will become phyto survival data or are they accidentally in this processing dataframe?
 
+## is total biomass per capita yet
 
 stipa.forb.summary <- stipa.forb %>% 
   group_by(name, treatment) %>%
