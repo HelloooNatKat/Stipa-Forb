@@ -117,6 +117,7 @@ ggplot(stipa.brho.all.summary,
   ylab("Biomass (g)") +
   scale_color_manual(values = c("darkblue", "red", "purple"), name = "Treatment", labels = c("BRHO", "CONTROL", "STIPA"))
 
+<<<<<<< HEAD
 ggplot(stipa.brho.all.summary, 
        aes(x = phyto, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
            color = treatment)) +
