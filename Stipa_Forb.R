@@ -82,18 +82,40 @@ summary(model.biomass.3)
 # not too great of a model, it's just summing what we already see...
 
 ###CODING WITH CARMEN
-stipa.brho.all <- read.csv("stipa-forb-brho_all-data.csv")
+stipa.brho.all <- read.csv("stipa-forb-brho_all-data.csv")%>%
+  filter(phyto.n.indiv>0, phyto!="AMME")%>%
+  mutate(percapita.totalbiomass=total.biomass.g/phyto.n.indiv)
+
+#!= means we want all the phytos that are not AMME
+
+#unique(stipa.brho.all$phyto.n.indiv)
+#to check all values you have present
 
 stipa.brho.all.summary <- stipa.brho.all %>% 
   group_by(bkgrd, treatment, phyto) %>%
   dplyr::summarise(
-    biomass.mean = mean(total.biomass.g, na.rm =TRUE),
-    biomass.sd = sd(total.biomass.g, na.rm =TRUE),
-    biomass.se = biomass.sd/sqrt(length(total.biomass.g)),
+    biomass.mean = mean(percapita.totalbiomass, na.rm =TRUE),
+    biomass.sd = sd(percapita.totalbiomass, na.rm =TRUE),
+    biomass.se = biomass.sd/sqrt(length(percapita.totalbiomass)),
     phyto.mean = mean(phyto.n.indiv, na.rm =TRUE),
     phyto.sd = sd(phyto.n.indiv, na.rm =TRUE),
     phyto.se = biomass.sd/sqrt(length(phyto.n.indiv))
   )
+
+missing_vals_all <- stipa.brho.all %>%
+  filter(is.na(total.biomass.g)) 
+#stuff for Carmen; samples that still need to be processed 
+
+ggplot(stipa.brho.all.summary, 
+       aes(x = phyto, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
+           color = bkgrd)) +
+  facet_wrap(vars(treatment),scales="free") + 
+  geom_point() +
+  geom_errorbar() +
+  theme_classic() +
+  xlab("Focal Species") +
+  ylab("Biomass (g)") +
+  scale_color_manual(values = c("darkblue", "red", "purple"), name = "Treatment", labels = c("BRHO", "CONTROL", "STIPA"))
 
 ggplot(stipa.brho.all.summary, 
        aes(x = phyto, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
@@ -104,17 +126,39 @@ ggplot(stipa.brho.all.summary,
   theme_classic() +
   xlab("Focal Species") +
   ylab("Biomass (g)") +
-  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
+  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Control", "Drought"))
 
-ggplot(stipa.brho.all.summary, 
-       aes(x = phyto, y = phyto.mean, ymin = phyto.mean - phyto.se, ymax = phyto.mean + phyto.se,
-           color = treatment)) +
-  facet_wrap(vars(bkgrd),scales="free") + 
-  geom_point() +
-  geom_errorbar() +
-  theme_classic() +
-  xlab("Focal Species") +
-  ylab("Number of Individuals") +
-  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
+
+#MODEL A 
+model.biomass.1 <-(lmer(percapita.totalbiomass~treatment + bkgrd + (1|phyto), data=stipa.brho.all))
+model.biomass.2 <-(lmer(percapita.totalbiomass~treatment + bkgrd + (1|phyto) + (1|block), data=stipa.brho.all))
+summary(model.biomass.1)
+summary(model.biomass.2)
+#"Intercept" could mean biomass is still positive not taking into account the other variables???
+    #R chose BRHO as the baseline; "bkgrdControl" and "bkgrdStipa" are being compared to BRHO
+#do we want to model each species separately? or combine them into groups (ex. native forbs, native grasses..)
+
+#MODEL 2A GITR ONLY
+model.biomass.1 <-(lm(percapita.totalbiomass~treatment + bkgrd, data=stipa.brho.all[stipa.brho.all$phyto=="GITR",])) #the "," is important (everything before "," focus on rows, after the "," is column)
+#lm is just a linear model, just comparing fixed affect of treatment and background
+#the "+" means additive effects 
+#lm model gives  a significance value (Pr())
+model.biomass.2 <-(lmer(percapita.totalbiomass~treatment + bkgrd + (1|block), data=stipa.brho.all[stipa.brho.all$phyto=="GITR",]))
+summary(model.biomass.1)
+#"Estimate" is just comparing biomass between treatments or background 
+summary(model.biomass.2)
+
+#ggplot(stipa.brho.all.summary, 
+#       aes(x = phyto, y = phyto.mean, ymin = phyto.mean - phyto.se, ymax = phyto.mean + phyto.se,
+#           color = treatment)) +
+#  facet_wrap(vars(bkgrd),scales="free") + 
+#  geom_point() +
+#  geom_errorbar() +
+#  theme_classic() +
+#  xlab("Focal Species") +
+#  ylab("Number of Individuals") +
+#  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
 #treatment may not affect emergence 
+
+###SURVIVAL 
 
