@@ -82,39 +82,50 @@ summary(model.biomass.3)
 # not too great of a model, it's just summing what we already see...
 
 ###CODING WITH CARMEN
-stipa.brho.all <- read.csv("stipa-forb-brho_all-data.csv")
+stipa.brho.all <- read.csv("stipa-forb-brho_all-data.csv")%>%
+  filter(phyto.n.indiv>0, phyto!="AMME")%>%
+  mutate(percapita.totalbiomass=total.biomass.g/phyto.n.indiv)
+
+#!= means we want all the phytos that are not AMME
+
+#unique(stipa.brho.all$phyto.n.indiv)
+#to check all values you have present
 
 stipa.brho.all.summary <- stipa.brho.all %>% 
   group_by(bkgrd, treatment, phyto) %>%
   dplyr::summarise(
-    biomass.mean = mean(total.biomass.g, na.rm =TRUE),
-    biomass.sd = sd(total.biomass.g, na.rm =TRUE),
-    biomass.se = biomass.sd/sqrt(length(total.biomass.g)),
+    biomass.mean = mean(percapita.totalbiomass, na.rm =TRUE),
+    biomass.sd = sd(percapita.totalbiomass, na.rm =TRUE),
+    biomass.se = biomass.sd/sqrt(length(percapita.totalbiomass)),
     phyto.mean = mean(phyto.n.indiv, na.rm =TRUE),
     phyto.sd = sd(phyto.n.indiv, na.rm =TRUE),
     phyto.se = biomass.sd/sqrt(length(phyto.n.indiv))
   )
 
+missing_vals_all <- stipa.brho.all %>%
+  filter(is.na(total.biomass.g)) 
+#stuff for Carmen; samples that still need to be processed 
+
 ggplot(stipa.brho.all.summary, 
        aes(x = phyto, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
-           color = treatment)) +
-  facet_wrap(vars(bkgrd),scales="free") + 
+           color = bkgrd)) +
+  facet_wrap(vars(treatment),scales="free") + 
   geom_point() +
   geom_errorbar() +
   theme_classic() +
   xlab("Focal Species") +
   ylab("Biomass (g)") +
-  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
+  scale_color_manual(values = c("darkblue", "red", "purple"), name = "Treatment", labels = c("BRHO", "CONTROL", "STIPA"))
 
-ggplot(stipa.brho.all.summary, 
-       aes(x = phyto, y = phyto.mean, ymin = phyto.mean - phyto.se, ymax = phyto.mean + phyto.se,
-           color = treatment)) +
-  facet_wrap(vars(bkgrd),scales="free") + 
-  geom_point() +
-  geom_errorbar() +
-  theme_classic() +
-  xlab("Focal Species") +
-  ylab("Number of Individuals") +
-  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
+#ggplot(stipa.brho.all.summary, 
+#       aes(x = phyto, y = phyto.mean, ymin = phyto.mean - phyto.se, ymax = phyto.mean + phyto.se,
+#           color = treatment)) +
+#  facet_wrap(vars(bkgrd),scales="free") + 
+#  geom_point() +
+#  geom_errorbar() +
+#  theme_classic() +
+#  xlab("Focal Species") +
+#  ylab("Number of Individuals") +
+#  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
 #treatment may not affect emergence 
 
