@@ -85,6 +85,7 @@ summary(model.biomass.3)
 stipa.brho.all <- read.csv("stipa-brho_processing-data_20220916.csv")%>%
   #filter(phyto.n.indiv>0, phyto!="AMME")%>%
   mutate(percapita.totalbiomass=total.biomass.g/phyto.n.indiv)%>%
+  mutate(survival=phyto.n.indiv/3)%>%
   rename_with(stipa.brho.all, THIR-I="THIR")%>%
   rename_with(stipa.brho.all, TWIL-I="TWIL")
 #  I keep getting an error: unexpected '='..I've used rename_with, and rename.values
@@ -165,4 +166,13 @@ summary(model.biomass.2)
 #treatment may not affect emergence 
 
 ###SURVIVAL 
-
+ggplot(stipa.brho.all, 
+       aes(x = survival, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
+           color = bkgrd)) +
+  facet_wrap(vars(treatment),scales="free") + 
+  geom_point() +
+  geom_errorbar() +
+  theme_classic() +
+  xlab("Focal Species") +
+  ylab("Biomass (g)") +
+  scale_color_manual(values = c("darkblue", "red", "purple"), name = "Treatment", labels = c("BRHO", "CONTROL", "STIPA"))
