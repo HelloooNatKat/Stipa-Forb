@@ -82,9 +82,13 @@ summary(model.biomass.3)
 # not too great of a model, it's just summing what we already see...
 
 ###CODING WITH CARMEN
-stipa.brho.all <- read.csv("stipa-forb-brho_all-data.csv")%>%
-  filter(phyto.n.indiv>0, phyto!="AMME")%>%
-  mutate(percapita.totalbiomass=total.biomass.g/phyto.n.indiv)
+stipa.brho.all <- read.csv("stipa-brho_processing-data_20220916.csv")%>%
+  #filter(phyto.n.indiv>0, phyto!="AMME")%>%
+  mutate(percapita.totalbiomass=total.biomass.g/phyto.n.indiv)%>%
+  rename_with(stipa.brho.all, THIR-I="THIR")%>%
+  rename_with(stipa.brho.all, TWIL-I="TWIL")
+#  I keep getting an error: unexpected '='..I've used rename_with, and rename.values
+
 
 #!= means we want all the phytos that are not AMME
 
@@ -117,7 +121,6 @@ ggplot(stipa.brho.all.summary,
   ylab("Biomass (g)") +
   scale_color_manual(values = c("darkblue", "red", "purple"), name = "Treatment", labels = c("BRHO", "CONTROL", "STIPA"))
 
-<<<<<<< HEAD
 ggplot(stipa.brho.all.summary, 
        aes(x = phyto, y = biomass.mean, ymin = biomass.mean - biomass.se, ymax = biomass.mean + biomass.se,
            color = treatment)) +
