@@ -31,7 +31,7 @@ missing_vals <- stipa.forb %>%
 ## is total biomass per capita yet
 
 stipa.forb.summary <- stipa.forb %>% 
-  group_by(name, treatment) %>%
+  group_by(name, treatment, status) %>%
   dplyr::summarise(
     biomass.mean = mean(total.biomass.g, na.rm =TRUE),
     biomass.sd = sd(total.biomass.g, na.rm =TRUE),
@@ -84,10 +84,12 @@ summary(model.biomass.3)
 ###CODING WITH CARMEN
 stipa.brho.all <- read.csv("stipa-brho_processing-data_20220916.csv")%>%
   #filter(phyto.n.indiv>0, phyto!="AMME")%>%
-  mutate(percapita.totalbiomass=total.biomass.g/phyto.n.indiv)%>%
+  mutate(percapita.totalbiomass=total.biomass.g/phyto.n.indiv)
+
+stipa.brho.all<- stipa.brho.all%>%
   mutate(survival=phyto.n.indiv/3)%>%
-  rename_with(stipa.brho.all, THIR-I="THIR")%>%
-  rename_with(stipa.brho.all, TWIL-I="TWIL")
+  mutate(phyto=ifelse(phyto=="THIR-I","THIR",phyto))%>%
+  mutate(phyto=ifelse(phyto=="TWIL-I","TWIL",phyto))
 #  I keep getting an error: unexpected '='..I've used rename_with, and rename.values
 
 
@@ -134,7 +136,7 @@ ggplot(stipa.brho.all.summary,
   scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Control", "Drought"))
 
 
-#MODEL A 
+#MODEL All Species 
 model.biomass.1 <-(lmer(percapita.totalbiomass~treatment + bkgrd + (1|phyto), data=stipa.brho.all))
 model.biomass.2 <-(lmer(percapita.totalbiomass~treatment + bkgrd + (1|phyto) + (1|block), data=stipa.brho.all))
 summary(model.biomass.1)
@@ -143,15 +145,19 @@ summary(model.biomass.2)
     #R chose BRHO as the baseline; "bkgrdControl" and "bkgrdStipa" are being compared to BRHO
 #do we want to model each species separately? or combine them into groups (ex. native forbs, native grasses..)
 
-#MODEL 2A GITR ONLY
+#MODEL GITR ONLY
 model.biomass.1 <-(lm(percapita.totalbiomass~treatment + bkgrd, data=stipa.brho.all[stipa.brho.all$phyto=="GITR",])) #the "," is important (everything before "," focus on rows, after the "," is column)
 #lm is just a linear model, just comparing fixed affect of treatment and background
 #the "+" means additive effects 
 #lm model gives  a significance value (Pr())
-model.biomass.2 <-(lmer(percapita.totalbiomass~treatment + bkgrd + (1|block), data=stipa.brho.all[stipa.brho.all$phyto=="GITR",]))
+model.biomass.2 <-(lmer(percapita.totalbiomass~treatment * bkgrd + (1|block), data=stipa.brho.all[stipa.brho.all$phyto=="GITR",]))
 summary(model.biomass.1)
 #"Estimate" is just comparing biomass between treatments or background 
 summary(model.biomass.2)
+
+anova(model.biomass.2)
+#helpful to know if it's worth looking at contrasts
+# "*" means comparing the interaction between variables
 
 #ggplot(stipa.brho.all.summary, 
 #       aes(x = phyto, y = phyto.mean, ymin = phyto.mean - phyto.se, ymax = phyto.mean + phyto.se,
@@ -164,6 +170,16 @@ summary(model.biomass.2)
 #  ylab("Number of Individuals") +
 #  scale_color_manual(values = c("darkblue", "red"), name = "Treatment", labels = c("Drought", "Ambient"))
 #treatment may not affect emergence 
+
+#MODEL Functional Group
+model.biomass.1 <-(lm(percapita.totalbiomass~treatment + bkgrd, data=stipa.brho.all[stipa.brho.all$status == ])) #the "," is important (everything before "," focus on rows, after the "," is column)
+#lm is just a linear model, just comparing fixed affect of treatment and background
+#the "+" means additive effects 
+#lm model gives  a significance value (Pr())
+model.biomass.2 <-(lmer(percapita.totalbiomass~treatment * bkgrd + (1|block), data=stipa.brho.all[stipa.brho.all$status]))
+summary(model.biomass.1)
+#"Estimate" is just comparing biomass between treatments or background 
+summary(model.biomass.2)
 
 ###SURVIVAL 
 ggplot(stipa.brho.all, 
