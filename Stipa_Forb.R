@@ -172,7 +172,7 @@ anova(model.biomass.2)
 #treatment may not affect emergence 
 
 #MODEL Functional Group
-model.biomass.1 <-(lm(percapita.totalbiomass~treatment + bkgrd, data=stipa.brho.all[stipa.brho.all$status == ])) #the "," is important (everything before "," focus on rows, after the "," is column)
+model.biomass.1 <-(lm(percapita.totalbiomass~treatment + bkgrd, data=stipa.brho.all[stipa.brho.all$status == "invasive "])) #the "," is important (everything before "," focus on rows, after the "," is column)
 #lm is just a linear model, just comparing fixed affect of treatment and background
 #the "+" means additive effects 
 #lm model gives  a significance value (Pr())
