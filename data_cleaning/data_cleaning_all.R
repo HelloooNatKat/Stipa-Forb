@@ -9,7 +9,7 @@ if(file.exists("/Users/carme/Dropbox (University of Oregon)/MegaComp_Stipa_Overl
   
 } else {
   # Nat
-  lead <- "/Users/Marina/Documents/Dropbox/Mega_Competition/Data/Processing/Phytometer-Processing/Phytometer-Processing_entered/"
+  lead <- "/Users/natkataoka/Dropbox/MegaComp_Stipa_Overlap/Data/"
 } 
 
 ## Stipa BG data ####
