@@ -35,13 +35,17 @@ colnames(acam)
 colnames(leni)
 
 acamC <- acam %>% 
-  mutate(total.stem.length.mm = NA,
-         pod.num = NA)
+  mutate(total.stem.length.mm = NA)
+
 colnames(acamC)
 #mutate in this case adding blank column for easier merging across sheets
 
+leniC <- leni %>%
+  select(-pod.num)
+
 #TO-DO
 #make sure all sheets have same coloumn names
+#delete columns that aren't relevant to other species
 #rbind(namefirstdataframe, nameseconddataframe); 
   #example of merging all sheets: ufoMerged <- do.call("rbind", list(ufo1, ufo2, ufo3, ufo4))
 
