@@ -32,5 +32,16 @@ brho_BG <- read.csv(paste0(lead, "phyto_merged-prelim-data_20221025.csv")) %>%
 
 # Merge Stipa-BG data ####
 colnames(acam)
+colnames(leni)
 
+acamC <- acam %>% 
+  mutate(total.stem.length.mm = NA,
+         pod.num = NA)
+colnames(acamC)
+#mutate in this case adding blank column for easier merging across sheets
+
+#TO-DO
+#make sure all sheets have same coloumn names
+#rbind(namefirstdataframe, nameseconddataframe); 
+  #example of merging all sheets: ufoMerged <- do.call("rbind", list(ufo1, ufo2, ufo3, ufo4))
 
