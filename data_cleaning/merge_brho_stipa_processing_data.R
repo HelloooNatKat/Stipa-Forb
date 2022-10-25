@@ -59,13 +59,3 @@ colnames(stipa.forbC)
 sf_all <- rbind(stipa.forbC, brho_bg_dat)
 write.csv(sf_all, "stipa-brho_processing-data_20220916.csv")
 
-
-
-
-
-
-
-
-
-
-
