@@ -153,7 +153,27 @@ stipa.background.merged <- do.call("rbind", list(acamC, anarC, brhoC, gitrC, lom
 brho_BG_clean <- brho_BG %>% 
   select(block, plot, sub, bkgrd, dens, phyto, phyto.n.indiv, phyto.unique, complete.sample, total.biomass.rounded.percap, total.stem.length.mm.percap, empty.flower.num.percap, flower.num.percap, scale.ID, inflor.g.rounded.percap, seed.num.percap, process.notes, census.notes)
 
-all.bkgrd <- rbind(stipa.background.merged,brho_BG_clean)
+native <- c("TWIL", "PLER", "LENI", "GITR", "ACAM", "MAEL")
+non_native <- c("ANAR", "BRHO", "LOMU", "THIR")
+
+grass <- c("BRHO", "LOMU")
+forb <- c("TWIL", "PLER", "LENI", "GITR", "ACAM", "MAEL", "ANAR", "THIR")
+
+drought <- c(1, 3, 4, 6, 12, 14)
+
+all.bkgrd <- rbind(stipa.background.merged,brho_BG_clean) %>%
+  mutate(treatment = ifelse(block %in% drought, "D", "C")) %>%
+  filter(phyto != "AVBA", phyto != "MICA", phyto.n.indiv != 0) %>%
+  mutate(phyto = ifelse(phyto == "THIR-I", "THIR", phyto)) %>%
+  mutate(phyto = ifelse(phyto == "TWIL-I", "TWIL", phyto)) %>%
+  mutate(functional_group = ifelse(phyto %in% grass, "grass","forb"),
+         origin = ifelse(phyto %in% native, "native", "non_native"))
+
+#you don't need quotations for a number
+#you need == because it's a logical statement (ifelse)
 
 rm(list=setdiff(ls(), "all.bkgrd"))
 #rm = remove, rm("name") = deletes it from environment, list=c("item1","item2")= deletes list of items, ls = lists everything in the environmnet, setdiff(ls()), "name" = lists everything then, compares them, then deletes everything that isn't shared between ls and "name" 
+
+unique(all.bkgrd$phyto)
+

@@ -1,9 +1,11 @@
 library(tidyverse)
 library(ggplot2)
 library(lme4)
-stipa.forb <- read.csv("~/Downloads/Stipa-Forb/stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
-blockkey <- read.csv("~/Downloads/Stipa-Forb/block-key.csv")%>%
-  select(block, treatment)
+stipa.forb <- read.csv("~/")
+#USE TAB to find files
+#stipa.forb <- read.csv("stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
+#blockkey <- read.csv("~/Downloads/Stipa-Forb/block-key.csv")%>%
+  #select(block, treatment)
 
 ## Carmen File Paths
 #stipa.forb <- read.csv("stipa-forb_phyto-processing - stipa-forb_data_2022-07-27.csv")
