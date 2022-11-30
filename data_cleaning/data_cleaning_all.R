@@ -157,9 +157,3 @@ all.bkgrd <- rbind(stipa.background.merged,brho_BG_clean)
 
 rm(list=setdiff(ls(), "all.bkgrd"))
 #rm = remove, rm("name") = deletes it from environment, list=c("item1","item2")= deletes list of items, ls = lists everything in the environmnet, setdiff(ls()), "name" = lists everything then, compares them, then deletes everything that isn't shared between ls and "name" 
-
-#TO-DO
-#look at the number of replicates (we need at least 3)
-#look for outliers in plotted data 
-#look for samples that still need to be processed 
-#clean up the environment 
