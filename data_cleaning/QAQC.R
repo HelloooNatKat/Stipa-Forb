@@ -5,19 +5,6 @@ colnames(all.bkgrd)
 unique(all.bkgrd$block)
 #block 11 is not a megacomp block 
 
-drought <- c(1, 3, 4, 6, 12, 14)
-all.bkgrd.treatment <- all.bkgrd %>% 
-  mutate(treatment = ifelse(block %in% drought, "D", "C")) %>%
-  filter(phyto != "AVBA", phyto != "MICA", phyto.n.indiv != 0) %>%
-  mutate(phyto = ifelse(phyto == "THIR-I", "THIR", phyto)) %>%
-  mutate(phyto = ifelse(phyto == "TWIL-I", "TWIL", phyto))
-  #you don't need quotations for a number
-  #you need == because it's a logical statement (ifelse)
-
-unique(all.bkgrd.treatment$phyto.n.indiv)
-#checking to see if we have 0's left
-unique(all.bkgrd.treatment$phyto)
-
 ggplot(all.bkgrd, aes(x=phyto, y=total.biomass.rounded.percap)) + 
   geom_boxplot() 
 
@@ -37,15 +24,35 @@ ggplot(all.bkgrd, aes(x=phyto, y=total.biomass.rounded.percap, color=bkgrd)) +
   #missing LENI control 
   #MAEL still being processed 
 
-new.bkgrd <- all.bkgrd.treatment %>%
+new.bkgrd <- all.bkgrd %>%
   group_by(treatment, bkgrd, phyto) %>%
   summarise(reps = n())
+
+BRHO.bkgrd <- all.bkgrd %>%
+  group_by(treatment, bkgrd, phyto, dens) %>%
+  filter(bkgrd == "BRHO") %>%
+  summarise(reps = n())
+
 #group_by = looking for unique combination of the variables you list
 # n = counts the number of observations 
 
+#Remove replicates with less than 3
+final.bckrd <- left_join(all.bkgrd, new.bkgrd, by = c("treatment", "bkgrd", "phyto")) %>%
+  filter(reps > 2)
+
+ggplot(BRHO.bkgrd, aes(x=phyto, y=reps, color=dens)) + 
+  geom_point() +
+  facet_wrap(~treatment)
+#you use ~ when using facet_wrap
+  ###for group meeting, see what we have enough of in H and L density, which species these are
+      ###have a graph of each species, use all.bkgrd
+
 #TO-DO
-#look at the number of replicates (we need at least 3)
-#look for outliers in plotted data 
-#replot with the most up to date data
+#look for outliers in plotted data: visualize each species individually; take MAEL out to compare other species 
+
+#replot with the most up to date data (use final.bkgrd dataframe)
+  #compare functional group and treatment and bkgrd and origin 
+#make a model to see if density has any affect on biomass
+  #talk to group about this
 #look for samples that still need to be processed 
 #before 12/5 have new graphs 
