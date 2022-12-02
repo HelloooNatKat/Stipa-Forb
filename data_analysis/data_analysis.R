@@ -40,5 +40,4 @@ model.biomass.3 <-(lmer(log(total.biomass.rounded.percap)~treatment + (1|phyto) 
   #when you look at the graph, you want residuals to be randomly distributed 
 
 #TO DO
-#add category of species to new datasheet (functional group; nat forb, inv forb, inv grass)
 #new model: treatment*fungroupphyto*fungroupofbackground = this will give a three way interaction, so you can simplify first
