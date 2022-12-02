@@ -1,4 +1,4 @@
-source("data_cleaning/data_cleaning_all.R")
+source("data_cleaning/merge_stipa_brho_data.R")
 #Warning: bkgrd == c("BRHO", "Control") longer object length is not a multiple of shorter object length
 
 colnames(all.bkgrd)

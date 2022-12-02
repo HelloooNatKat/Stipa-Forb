@@ -3,31 +3,26 @@ library(tidyverse)
 
 # Read in Data ####
 # specify dropbox pathway 
-if(file.exists("/Users/carme/Dropbox (University of Oregon)/MegaComp_Stipa_Overlap/Data/")){
+if(file.exists("/Users/carme/Dropbox (University of Oregon)/MegaComp_Stipa_Overlap/Data/StipaForb_Data/")){
   # Carmen
-  lead <- "/Users/carme/Dropbox (University of Oregon)/MegaComp_Stipa_Overlap/Data/"
+  lead <- "/Users/carme/Dropbox (University of Oregon)/MegaComp_Stipa_Overlap/Data/StipaForb_Data/"
   
 } else {
   # Nat
-  lead <- "/Users/natkataoka/Dropbox/MegaComp_Stipa_Overlap/Data/"
+  lead <- "/Users/natkataoka/Dropbox/MegaComp_Stipa_Overlap/Data/StipaForb_Data"
 } 
 
 ## Stipa BG data ####
 acam <- read.csv(paste0(lead, "stipa-forb_phyto-processing_ACAM_20221025.csv"))
-anar <- read.csv(paste0(lead, "stipa-forb_phyto-processing_ANAR_20221025.csv"))
+anar <- read.csv(paste0(lead, "stipa-forb_phyto-processing_ANAR_20221201.csv"))
 brho <- read.csv(paste0(lead, "stipa-forb_phyto-processing_BRHO_20221025.csv"))
 gitr <- read.csv(paste0(lead, "stipa-forb_phyto-processing_GITR_20221025.csv"))
 leni <- read.csv(paste0(lead, "stipa-forb_phyto-processing_LENI_20221025.csv"))
-lomu <- read.csv(paste0(lead, "stipa-forb_phyto-processing_LOMU_20221025.csv"))
-mael <- read.csv(paste0(lead, "stipa-forb_phyto-processing_MAEL_20221025.csv"))
+lomu <- read.csv(paste0(lead, "stipa-forb_phyto-processing_LOMU_20221201.csv"))
+mael <- read.csv(paste0(lead, "stipa-forb_phyto-processing_MAEL_20221201.csv"))
 pler <- read.csv(paste0(lead, "stipa-forb_phyto-processing_PLER_20221025.csv"))
 thir <- read.csv(paste0(lead, "stipa-forb_phyto-processing_THIR_20221025.csv"))
-twil <- read.csv(paste0(lead, "stipa-forb_phyto-processing_TWIL_20221025.csv"))
-
-
-## BRHO/Control BG data ####
-brho_BG <- read.csv(paste0(lead, "phyto_merged-prelim-data_20221110.csv")) %>%
-  filter(bkgrd == c("BRHO", "Control")) ## filter for BRHO & Controls
+twil <- read.csv(paste0(lead, "stipa-forb_phyto-processing_TWIL_20221201.csv"))
 
 
 # Merge Stipa-BG data ####
@@ -150,30 +145,6 @@ stipa.background.merged <- do.call("rbind", list(acamC, anarC, brhoC, gitrC, lom
          complete.sample = complete.) %>%
   select(block, plot, sub, bkgrd, dens, phyto, phyto.n.indiv, phyto.unique, complete.sample, total.biomass.rounded.percap, total.stem.length.mm.percap, empty.flower.num.percap, flower.num.percap, scale.ID, inflor.g.rounded.percap, seed.num.percap, process.notes, census.notes)
  
-brho_BG_clean <- brho_BG %>% 
-  select(block, plot, sub, bkgrd, dens, phyto, phyto.n.indiv, phyto.unique, complete.sample, total.biomass.rounded.percap, total.stem.length.mm.percap, empty.flower.num.percap, flower.num.percap, scale.ID, inflor.g.rounded.percap, seed.num.percap, process.notes, census.notes)
 
-native <- c("TWIL", "PLER", "LENI", "GITR", "ACAM", "MAEL")
-non_native <- c("ANAR", "BRHO", "LOMU", "THIR")
-
-grass <- c("BRHO", "LOMU")
-forb <- c("TWIL", "PLER", "LENI", "GITR", "ACAM", "MAEL", "ANAR", "THIR")
-
-drought <- c(1, 3, 4, 6, 12, 14)
-
-all.bkgrd <- rbind(stipa.background.merged,brho_BG_clean) %>%
-  mutate(treatment = ifelse(block %in% drought, "D", "C")) %>%
-  filter(phyto != "AVBA", phyto != "MICA", phyto.n.indiv != 0) %>%
-  mutate(phyto = ifelse(phyto == "THIR-I", "THIR", phyto)) %>%
-  mutate(phyto = ifelse(phyto == "TWIL-I", "TWIL", phyto)) %>%
-  mutate(functional_group = ifelse(phyto %in% grass, "grass","forb"),
-         origin = ifelse(phyto %in% native, "native", "non_native"))
-
-#you don't need quotations for a number
-#you need == because it's a logical statement (ifelse)
-
-rm(list=setdiff(ls(), "all.bkgrd"))
+rm(list=setdiff(ls(), "stipa.background.merged"))
 #rm = remove, rm("name") = deletes it from environment, list=c("item1","item2")= deletes list of items, ls = lists everything in the environmnet, setdiff(ls()), "name" = lists everything then, compares them, then deletes everything that isn't shared between ls and "name" 
-
-unique(all.bkgrd$phyto)
-
