@@ -1,5 +1,6 @@
 
 # read in data ####
+#set working directory to Downloads/Stipa-Forb
 ## first, stipa backgrounds
 source("data_cleaning/stipa_initial_clean.R")
 

@@ -9,7 +9,7 @@ if(file.exists("/Users/carme/Dropbox (University of Oregon)/MegaComp_Stipa_Overl
   
 } else {
   # Nat
-  lead <- "/Users/natkataoka/Dropbox/MegaComp_Stipa_Overlap/Data/StipaForb_Data"
+  lead <- "/Users/natkataoka/Dropbox/MegaComp_Stipa_Overlap/Data/StipaForb_Data/"
 } 
 
 ## Stipa BG data ####
@@ -148,3 +148,4 @@ stipa.background.merged <- do.call("rbind", list(acamC, anarC, brhoC, gitrC, lom
 
 rm(list=setdiff(ls(), "stipa.background.merged"))
 #rm = remove, rm("name") = deletes it from environment, list=c("item1","item2")= deletes list of items, ls = lists everything in the environmnet, setdiff(ls()), "name" = lists everything then, compares them, then deletes everything that isn't shared between ls and "name" 
+

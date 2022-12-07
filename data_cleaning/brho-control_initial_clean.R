@@ -43,7 +43,7 @@ basic_cleaning_func <- function(phyto_data, ...) {
     
     mutate_all(na_if,"") %>% ## make blank values NAs
     
-    filter(plot < 43, bkgrd != "VIVI")
+    filter(plot < 43, bkgrd == "BRHO" | bkgrd == "Control")
   
   return(temp)
   
@@ -181,3 +181,4 @@ BC.background.merged <- do.call("rbind", list(acamMC2, anarMC2, brhoMC2, gitrMC2
     ## connect this script to data_cleaning_all
 
 rm(list = c("acamMC", "acamMC2", "anarMC", "anarMC2", "brhoMC", "brhoMC2", "gitrMC", "gitrMC2", "i", "lead", "leniMC", "leniMC2", "lomuMC", "lomuMC2", "maelMC", "maelMC2", "plerMC", "plerMC2", "thirMC", "thirMC2", "twilMC", "twilMC2"))
+
