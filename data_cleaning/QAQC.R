@@ -73,6 +73,70 @@ ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "ACAM",], aes(x=bkgrd, y=mea
 #[rows, columns]
 ggsave("ACAM.png", width = 8, height = 5)
 
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "ANAR",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("ANAR")
+#[rows, columns]
+ggsave("ANAR.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "BRHO",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("BRHO")
+#[rows, columns]
+ggsave("BRHO.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "GITR",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("GITR")
+#[rows, columns]
+ggsave("GITR.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "LENI",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("LENI")
+#[rows, columns]
+ggsave("LENI.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "LOMU",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("LOMU")
+#[rows, columns]
+ggsave("LOMU.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "MAEL",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("MAEL")
+#[rows, columns]
+ggsave("MAEL.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "PLER",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("PLER")
+#[rows, columns]
+ggsave("PLER.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "THIR",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("THIR")
+#[rows, columns]
+ggsave("THIR.png", width = 8, height = 5)
+
+ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "TWIL",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = mean.biomass-se.biomass, ymax = mean.biomass + se.biomass), width = 0.25) +
+  ggtitle("TWIL")
+#[rows, columns]
+ggsave("TWIL.png", width = 8, height = 5)
+
+
 #COMPARE ALL VARIABLES
 
 summary.all.bkgrd.origin <- all.bkgrd %>%
