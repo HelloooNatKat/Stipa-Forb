@@ -41,3 +41,5 @@ model.biomass.3 <-(lmer(log(total.biomass.rounded.percap)~treatment + (1|phyto) 
 
 #TO DO
 #new model: treatment*fungroupphyto*fungroupofbackground = this will give a three way interaction, so you can simplify first
+#use density as covariate, see if it impacts results, if it does, then perhaps only using H density and potentially drop species 
+  #for example, include things like MAEL and TWIL grouping for functional group but no individual anaylsis 

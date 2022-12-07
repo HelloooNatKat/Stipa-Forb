@@ -38,6 +38,16 @@ new.bkgrd <- all.bkgrd %>%
   group_by(treatment, bkgrd, phyto) %>%
   summarise(reps = n())
 
+Stipa.bkgrd <- all.bkgrd %>%
+  group_by(treatment, bkgrd, phyto, dens) %>%
+  filter(bkgrd == "Stipa") %>%
+  summarise(reps = n())
+
+Control.bkgrd <- all.bkgrd %>%
+  group_by(treatment, bkgrd, phyto, dens) %>%
+  filter(bkgrd == "Control") %>%
+  summarise(reps = n())
+
 BRHO.bkgrd <- all.bkgrd %>%
   group_by(treatment, bkgrd, phyto, dens) %>%
   filter(bkgrd == "BRHO") %>%
@@ -56,6 +66,13 @@ ggplot(BRHO.bkgrd, aes(x=phyto, y=reps, color=dens)) +
 #you use ~ when using facet_wrap
   ###for group meeting, see what we have enough of in H and L density, which species these are
       ###have a graph of each species, use all.bkgrd
+ggplot(Stipa.bkgrd, aes(x=phyto, y=reps)) + 
+  geom_point() +
+  facet_wrap(~treatment)
+
+ggplot(Control.bkgrd, aes(x=phyto, y=reps)) + 
+  geom_point() +
+  facet_wrap(~treatment)
 
 ggsave("BRHO.bkgrd.replicate.density.png", width = 8, height = 5)
 
@@ -63,7 +80,9 @@ ggsave("BRHO.bkgrd.replicate.density.png", width = 8, height = 5)
 
 summary.all.bkgrd <- all.bkgrd %>%
   group_by(treatment, bkgrd, phyto, origin, functional_group) %>%
-  summarize(mean.biomass = mean(total.biomass.rounded.percap, na.rm = TRUE), se.biomass = calcSE(total.biomass.rounded.percap))
+  summarize(mean.biomass = mean(total.biomass.rounded.percap, na.rm = TRUE),
+            se.biomass = calcSE(total.biomass.rounded.percap), 
+            n = length(total.biomass.rounded.percap))
 #summarize = creating a new column 
 
 ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "ACAM",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
@@ -114,6 +133,7 @@ ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "MAEL",], aes(x=bkgrd, y=mea
   ggtitle("MAEL")
 #[rows, columns]
 ggsave("MAEL.png", width = 8, height = 5)
+#weird we're getting se lines with only 2 points of data?
 
 ggplot(summary.all.bkgrd[summary.all.bkgrd$phyto == "PLER",], aes(x=bkgrd, y=mean.biomass, color=treatment)) + 
   geom_point() +
