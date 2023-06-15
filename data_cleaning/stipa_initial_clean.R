@@ -88,6 +88,7 @@ leniC <- leni %>%
          scale.ID = NA,
          total.biomass.g = total.biomass,
          phyto.n.indiv = phyto,
+         complete. = "Y",
          phyto = "LENI") %>%
   select(block, plot, sub, bkgrd, dens, phyto, phyto.n.indiv, phyto.unique, complete., total.biomass.g, total.stem.length.mm, empty.flower.num, flower.num, scale.ID, inflor.g, seed.num, process.notes, census.notes)
 

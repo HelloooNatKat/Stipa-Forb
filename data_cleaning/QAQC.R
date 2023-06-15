@@ -23,7 +23,19 @@ ggplot(all.bkgrd, aes(x=treatment, y=total.biomass.rounded.percap, color=bkgrd))
 ggplot(all.bkgrd[all.bkgrd$origin %in% "native",], aes(x=bkgrd, y=total.biomass.rounded.percap)) + 
   geom_boxplot() +
   facet_wrap(~phyto, scales="free") +
-  scale_y_log10() 
+  scale_y_log10() +
+  theme_bw()
+
+ggsave("native_forbs_bkgrd.png", height = 4, width = 7)
+
+
+ggplot(all.bkgrd[all.bkgrd$origin %in% "native",], aes(x=treatment, y=total.biomass.rounded.percap, color = bkgrd)) + 
+  geom_boxplot() +
+  facet_wrap(~phyto, scales="free") +
+  scale_y_log10() +
+  theme_bw()
+
+ggsave("native_forbs_trt_by_bkgrd.png", height = 4, width = 7)
 
 ## hypothesis (1b): non-native grasses will perform equally well in native and non-native backgrounds due to high seed output and survival rate
 
