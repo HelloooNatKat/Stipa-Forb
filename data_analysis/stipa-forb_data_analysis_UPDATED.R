@@ -8,24 +8,6 @@
 #7. Look at summary; in Fixed effects section, look at Estimates and Pr(>t)
 #8. If you have any variables with more than two levels (ex.intercept (control), treatmentD), and they are categorical, you will need to do contrasts. 
 
-
-###HYPOTHESIS
-
-## hypothesis (1a): native forb species will perform better in Stipa pulchra backgrounds than in Bromus hordeaceus backgrounds because of historical plant community relations
-##in discussion mention the "Control" was still subject to competition (unweeded)
-
-## hypothesis (1b): non-native species will perform equally well in native and non-native backgrounds due to high seed output and survival rate
-
-## hypothesis (2a): the difference between stipa background and bromus will be greater under the drought condition than ambient condition
-#our results seem to indicate the opposite...maybe not as a facilitative role as we thought (but not necessarily competitive); OR direct effects of the environment more important than immediate facilitative effects 
-
-## hypothesis (2b): native forbs may be more affected by drought conditions than non-native grasses due to local adaptations (workshop this question)
-
-#reduce hypotheses; focus on "who's your neighbor" question (background), rather than the identity of the phytometer; check if there is interactive effect with precip.
-#Stipa serves as a facilitator at the beginning, but once a species has invaded the system is unhappy
-#do a trait comparison? put a pin in this until June (add as another hypothesis)
-#focal species do best in stipa not bromus, in both drought and ammbient background (add this in my abstract)
-
 library(lmerTest)
 rm(list=ls())
 source("data_cleaning/QAQC.R")
@@ -57,10 +39,55 @@ anova(model.biomass.1, model.biomass.2)
 summary(model.biomass.2)
 #look at Fixed effects
 
-model.biomass.3 <-(lmer(log(total.biomass.rounded.percap)~treatment + (1|phyto) + (1|block), data=all.bkgrd.treatment))
-
 #linear model assumptions: residuals are normally distributed; so it's good to check if this is true or not
   #when you look at the graph, you want residuals to be randomly distributed 
+
+###HYPOTHESIS
+
+## hypothesis (1a): native forb species will perform better in Stipa pulchra backgrounds than in Bromus hordeaceus backgrounds because of historical plant community relations
+##in discussion mention the "Control" was still subject to competition (unweeded)
+
+#predictor:bkgrd, functional group, origin 
+#response:total.biomass.rounded.percap
+
+model.biomass.3 <-(lmer(log(total.biomass.rounded.percap)~bkgrd + origin + (1|phyto) + (1|block), data=all.bkgrd))
+# "+" means you think predictor variables would have an additive effect 
+# "*" means you think there's an interactive effect between variables 
+# keeping the random effects because some species might respond more similarly to themselves than others 
+
+plot(fitted(model.biomass.3), resid(model.biomass.3))
+qqnorm(resid(model.biomass.3))
+qqline(resid(model.biomass.3))
+summary(model.biomass.3)
+# "Estimate"; estimated effect of the model
+  #example: negative effect of Bromus, positive effect of Control
+# "Random effects"; "Residual" explains variance not explained by Groups, block or phyto 
+
+model.biomass.3.B <-(lmer(log(total.biomass.rounded.percap)~bkgrd * origin + (1|phyto) + (1|block), data=all.bkgrd))
+# "+" means you think predictor variables would have an additive effect 
+# "*" means you think there's an interactive effect between variables 
+# keeping the random effects because some species might respond more similarly to themselves than others 
+
+plot(fitted(model.biomass.3.B), resid(model.biomass.3.B))
+qqnorm(resid(model.biomass.3.B))
+qqline(resid(model.biomass.3.B))
+summary(model.biomass.3.B)
+
+## hypothesis (1b): non-native species will perform equally well in native and non-native backgrounds due to high seed output and survival rate
+
+###QUESTION: should we model non-native and native separately? 
+
+## hypothesis (2a): the difference between stipa background and bromus will be greater under the drought condition than ambient condition
+#our results seem to indicate the opposite...maybe not as a facilitative role as we thought (but not necessarily competitive); OR direct effects of the environment more important than immediate facilitative effects 
+
+model.biomass.3.B <-(lmer(log(total.biomass.rounded.percap)~bkgrd * treatment + (1|phyto) + (1|block), data=all.bkgrd))
+
+## hypothesis (2b): native forbs may be more affected by drought conditions than non-native grasses due to local adaptations (workshop this question)
+
+#reduce hypotheses; focus on "who's your neighbor" question (background), rather than the identity of the phytometer; check if there is interactive effect with precip.
+#Stipa serves as a facilitator at the beginning, but once a species has invaded the system is unhappy
+#do a trait comparison? put a pin in this until June (add as another hypothesis)
+#focal species do best in stipa not bromus, in both drought and ammbient background (add this in my abstract)
 
 #TO DO
 #new model: treatment*fungroupphyto*fungroupofbackground = this will give a three way interaction, so you can simplify first
