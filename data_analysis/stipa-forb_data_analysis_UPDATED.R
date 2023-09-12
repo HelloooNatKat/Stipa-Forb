@@ -80,7 +80,22 @@ summary(model.biomass.3.B)
 ## hypothesis (2a): the difference between stipa background and bromus will be greater under the drought condition than ambient condition
 #our results seem to indicate the opposite...maybe not as a facilitative role as we thought (but not necessarily competitive); OR direct effects of the environment more important than immediate facilitative effects 
 
-model.biomass.3.B <-(lmer(log(total.biomass.rounded.percap)~bkgrd * treatment + (1|phyto) + (1|block), data=all.bkgrd))
+model.biomass.3.C <-(lmer(log(total.biomass.rounded.percap)~bkgrd * treatment + (1|phyto) + (1|block), data=all.bkgrd))
+plot(fitted(model.biomass.3.C), resid(model.biomass.3.C))
+qqnorm(resid(model.biomass.3.C))
+qqline(resid(model.biomass.3.C))
+summary(model.biomass.3.C)
+
+### NEXT STEP 
+
+#run post-hoc contrasts (TukeyHSD or Marina code - glht or emmeans); compare against the actual controls not just BRHO, you can also compare against Stipa to BRHO etc.
+
+#for hypothesis 1a and 1b incorporate treatment as a variable 
+
+#have one figure that shows drought treatment has an environmental effect (soil data)
+###Carmen 
+
+#clean figures (the prelim ones sent in Slack)
 
 ## hypothesis (2b): native forbs may be more affected by drought conditions than non-native grasses due to local adaptations (workshop this question)
 
