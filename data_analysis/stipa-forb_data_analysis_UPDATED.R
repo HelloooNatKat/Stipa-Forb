@@ -80,14 +80,62 @@ summary(model.biomass.3.B)
 ## hypothesis (2a): the difference between stipa background and bromus will be greater under the drought condition than ambient condition
 #our results seem to indicate the opposite...maybe not as a facilitative role as we thought (but not necessarily competitive); OR direct effects of the environment more important than immediate facilitative effects 
 
+model.biomass.native <-(lmer(log(total.biomass.rounded.percap)~bkgrd + (1|phyto) + (1|block), data=all.bkgrd[all.bkgrd$treatment == "C" & all.bkgrd$origin == "native",]))
+# "," means take all the rows where treatment = C (anything after the comma, it would look for just columns)
+plot(fitted(model.biomass.native), resid(model.biomass.native))
+qqnorm(resid(model.biomass.native))
+qqline(resid(model.biomass.native))
+summary(model.biomass.native)
+
+pairs(emmeans(model.biomass.native,~bkgrd),adjust="BH")
+#natives are doing better in Stipa than BRHO, and mid in Control 
+
+model.biomass.native.treatment <-(lmer(log(total.biomass.rounded.percap)~bkgrd + treatment + (1|phyto) + (1|block), data=all.bkgrd[all.bkgrd$origin == "non_native",]))
+# "," means take all the rows where treatment = C (anything after the comma, it would look for just columns)
+#change "non_native" to "native" to check 
+plot(fitted(model.biomass.native.treatment), resid(model.biomass.native.treatment))
+qqnorm(resid(model.biomass.native.treatment))
+qqline(resid(model.biomass.native.treatment))
+summary(model.biomass.native.treatment)
+anova(model.biomass.native.treatment)
+pairs(emmeans(model.biomass.native.treatment,~bkgrd),adjust="BH")
+
 model.biomass.3.C <-(lmer(log(total.biomass.rounded.percap)~bkgrd * treatment + (1|phyto) + (1|block), data=all.bkgrd))
+# "," means take all the rows where treatment = C (anything after the comma, it would look for just columns)
 plot(fitted(model.biomass.3.C), resid(model.biomass.3.C))
 qqnorm(resid(model.biomass.3.C))
 qqline(resid(model.biomass.3.C))
 summary(model.biomass.3.C)
 
-### NEXT STEP 
+model.biomass.3.D <-(lmer(log(total.biomass.rounded.percap)~bkgrd + treatment + origin + (1|phyto) + (1|block), data=all.bkgrd))
+plot(fitted(model.biomass.3.D), resid(model.biomass.3.D))
+qqnorm(resid(model.biomass.3.D))
+qqline(resid(model.biomass.3.D))
+summary(model.biomass.3.D)
 
+anova(model.biomass.3.D)
+#no effect of origin 
+anova(model.biomass.3.C,model.biomass.3.D)
+#the effect of background does not affect the effect of treatment 
+
+library(emmeans) 
+pairs(emmeans(model.biomass.3.D,~bkgrd),adjust="BH")
+pairs(emmeans(model.biomass.3.D,~treatment),adjust="BH")
+#"estimate"=estimated biomass difference, the "-" means Control has more biomass than BRHO
+pairs(emmeans(model.biomass.3.D,~treatment+bkgrd),adjust="BH")
+
+#TAKEAWAY
+#no effect of origin
+#no interactive effect of background and treatment 
+#biomass is less in drought 
+#biomass is greatest in Stipa, lowest in BRHO 
+
+#when we restrict the data to just forbs, there's no effect of treatment 
+#when we restrict the data to just non-native, there's a marginal effect of treatment 
+  #does this mean we need the full dataset to have enough power? 
+    #look at model.biomass.native.treatment
+
+#NEXT STEP 
 #run post-hoc contrasts (TukeyHSD or Marina code - glht or emmeans); compare against the actual controls not just BRHO, you can also compare against Stipa to BRHO etc.
 
 #for hypothesis 1a and 1b incorporate treatment as a variable 
@@ -97,6 +145,7 @@ summary(model.biomass.3.C)
 
 #clean figures (the prelim ones sent in Slack)
 
+#EXTRA
 ## hypothesis (2b): native forbs may be more affected by drought conditions than non-native grasses due to local adaptations (workshop this question)
 
 #reduce hypotheses; focus on "who's your neighbor" question (background), rather than the identity of the phytometer; check if there is interactive effect with precip.
@@ -104,7 +153,7 @@ summary(model.biomass.3.C)
 #do a trait comparison? put a pin in this until June (add as another hypothesis)
 #focal species do best in stipa not bromus, in both drought and ammbient background (add this in my abstract)
 
-#TO DO
+#NOTES
 #new model: treatment*fungroupphyto*fungroupofbackground = this will give a three way interaction, so you can simplify first
 #use density as covariate, see if it impacts results, if it does, then perhaps only using H density and potentially drop species 
   #for example, include things like MAEL and TWIL grouping for functional group but no individual anaylsis 
