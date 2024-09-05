@@ -9,7 +9,13 @@
 #8. If you have any variables with more than two levels (ex.intercept (control), treatmentD), and they are categorical, you will need to do contrasts. 
 
 library(lmerTest)
+library(dplyr)
+library(lme4)
+library(MuMIn)
 rm(list=ls())
+library(emmeans)
+library(ggplot2)
+library(car)
 source("data_cleaning/QAQC.R")
 #source = this is how you connect scripts together 
 hist(all.bkgrd$total.biomass.rounded.percap)
@@ -30,8 +36,13 @@ qqline(resid(model.biomass.2))
 #quantile-quanitle plot; plots predicted q against actual q's; another way to assess residuals by looking at tails; checking the normality of the residuals 
 anova(model.biomass.1, model.biomass.2)
 #anova in this instance, is used to compare two models; gives you stuff like AIC/BIC (tells you if your model is decent, best to minimize AIC)
-  #loglik = the higher the value, the better the model; it is the best way to compare random effects between models (the models have to be exactly the same, only difference can be in the random effects)
+
+###MAY COMMENT
+#Liklihood Ratio Test (LRT) loglik = the higher the value, the better the model; it is the best way to compare random effects between models (the models have to be exactly the same, only difference can be in the random effects)
+#"we structured the model based on how it was designed (block and phytometer); incorporated factors that would be responsible for variation 
+
 #a difference of 2 (between models) is significant, like a p-value 
+
   #in this case model 2 is the much better model
 
 #typical ANOVA definition: "ANOVA, which stands for Analysis of Variance, is a statistical test used to analyze the difference between the means of more than two groups. A one-way ANOVA uses one independent variable, while a two-way ANOVA uses two independent variables" 
@@ -41,14 +52,55 @@ summary(model.biomass.2)
 
 #linear model assumptions: residuals are normally distributed; so it's good to check if this is true or not
   #when you look at the graph, you want residuals to be randomly distributed 
+###MAY COMMENT
+#treatmentD is the difference between (estimated biomass(log) of treatmentC)
+#the estimated biomass for treatmentD is -0.7 + (-0.67)
+#here we are only looking at precip treatment effects 
 
 ###HYPOTHESIS
 
 ## hypothesis (1a): native forb species will perform better in Stipa pulchra backgrounds than in Bromus hordeaceus backgrounds because of historical plant community relations
 ##in discussion mention the "Control" was still subject to competition (unweeded)
 
+#START JULY
+
+hypothesis_1a<-(lmer(log(total.biomass.rounded.percap)~bkgrd*functional_group + bkgrd*origin + (1|phyto) + (1|block), data=all.bkgrd))
+###[all.bkgrd$origin == "native"&all.bkgrd$functional_group == "forb",]))
+
+summary(hypothesis_1a)
+#QUESTION: why does summary only show "functional_groupggrass"? 
+
+plot(fitted(hypothesis_1a), resid(hypothesis_1a))
+qqnorm(resid(hypothesis_1a))
+qqline(resid(hypothesis_1a))
+anova(hypothesis_1a)
+pairs(emmeans(hypothesis_1a,~bkgrd),adjust="BH")
+#all species are doing better in Stipa than BRHO, less so in Control but stil better than in BRHO
+#QUESTION: because I have bkgrd*functional_group + bkgrd*origin, is using emmeans this way okay? 
+
+#Reminder Example: if the estimate is negative, then you know the BRHO is smaller 
+#Reminder Example: BRHO (10) - Control (15) = -5, meaning Control had higher biomass (meaning native phytometer species had more biomass growth under Control)
+
 #predictor:bkgrd, functional group, origin 
 #response:total.biomass.rounded.percap
+
+hypothesis_1a_graph<-all.bkgrd %>%
+  group_by(phyto, bkgrd, origin) %>% 
+  summarize(mean_biomass=mean(total.biomass.rounded.percap, na.rm = TRUE), se_biomass=calcSE(total.biomass.rounded.percap)) %>%
+  mutate(bkgrd=ifelse(bkgrd=="BRHO", "Bromus", ifelse(bkgrd=="Stipa", "Nassella", bkgrd)))
+
+ggplot(hypothesis_1a_graph,aes(x=bkgrd, y=mean_biomass, color=origin))+
+  geom_point(size=3)+ #size can be adjusted here!
+  geom_errorbar(aes(ymin=mean_biomass-se_biomass, ymax=mean_biomass+se_biomass), width = 0.25)+ 
+  facet_wrap(vars(phyto), scales="free")+
+  theme_bw()+
+  ylab("Total Biomass Per Capita")+
+  xlab("Background")+
+  labs(color = "Origin")+
+  scale_color_manual(values = c("#008080", "#CA562C"), labels = c("Native", "Non-Native"))+
+  theme(legend.position = "bottom") 
+
+#END JULY
 
 model.biomass.3 <-(lmer(log(total.biomass.rounded.percap)~bkgrd + origin + (1|phyto) + (1|block), data=all.bkgrd))
 # "+" means you think predictor variables would have an additive effect 
@@ -75,20 +127,73 @@ summary(model.biomass.3.B)
 
 ## hypothesis (1b): non-native species will perform equally well in native and non-native backgrounds due to high seed output and survival rate
 
+#START JULY
+
+non_native_plot<-all.bkgrd %>%
+  filter(origin!="native") %>%
+  group_by(phyto, bkgrd, origin) %>% 
+  summarize(mean_biomass=mean(total.biomass.rounded.percap, na.rm = TRUE), se_biomass=calcSE(total.biomass.rounded.percap)) %>%
+  mutate(bkgrd=ifelse(bkgrd=="BRHO", "Bromus", ifelse(bkgrd=="Stipa", "Nassella", bkgrd)))
+
+ggplot(non_native_plot,aes(x=bkgrd, y=mean_biomass))+
+  geom_point(size=3)+ #size can be adjusted here!
+  geom_errorbar(aes(ymin=mean_biomass-se_biomass, ymax=mean_biomass+se_biomass), width = 0.25)+ 
+  facet_wrap(vars(phyto), scales="free")+
+  theme_bw()+
+  ylab("Total Biomass Per Capita")+
+  xlab("Background")
+
+#END JULY
+
 ###QUESTION: should we model non-native and native separately? 
 
 ## hypothesis (2a): the difference between stipa background and bromus will be greater under the drought condition than ambient condition
+
+#START JULY
+hypothesis_2a_graph<-all.bkgrd %>%
+  group_by(phyto, bkgrd, origin, treatment) %>% 
+  summarize(mean_biomass=mean(total.biomass.rounded.percap, na.rm = TRUE), se_biomass=calcSE(total.biomass.rounded.percap)) %>%
+  mutate(bkgrd=ifelse(bkgrd=="BRHO", "Bromus", ifelse(bkgrd=="Stipa", "Nassella", bkgrd)))
+
+hypothesis_2a_graph$phyto <- as.factor(hypothesis_2a_graph$phyto)
+hypothesis_2a_graph <- hypothesis_2a_graph %>%
+  mutate(phyto = fct_relevel(phyto, "ACAM", "GITR", "LENI", "MAEL", "PLER", "TWIL", "ANAR", "BRHO", "LOMU", "THIR"))
+
+ggplot(hypothesis_2a_graph,aes(x=bkgrd, y=mean_biomass, color=treatment))+
+  geom_point(size=3)+ #size can be adjusted here!
+  geom_errorbar(aes(ymin=mean_biomass-se_biomass, ymax=mean_biomass+se_biomass), width = 0.25)+ 
+  facet_wrap(vars(phyto), scales="free",ncol=6,nrow=2)+
+  theme_bw()+
+  ylab("Total Biomass Per Capita")+
+  xlab("Background")+
+  labs(color = "Precipitation Treatment")+
+  scale_color_manual(values = c("#008080", "#CA562C"), labels = c("Control", "Drought"))+
+  theme(legend.position = "bottom") 
+
+#END JULY
+
 #our results seem to indicate the opposite...maybe not as a facilitative role as we thought (but not necessarily competitive); OR direct effects of the environment more important than immediate facilitative effects 
 
 model.biomass.native <-(lmer(log(total.biomass.rounded.percap)~bkgrd + (1|phyto) + (1|block), data=all.bkgrd[all.bkgrd$treatment == "C" & all.bkgrd$origin == "native",]))
 # "," means take all the rows where treatment = C (anything after the comma, it would look for just columns)
+
+###MAY COMMENT
+#here we are only looking at the effect of background on native phytometers under control precip treatment
+#could include both native and non-natives in this model (create a separate model, depending on the question)
+#^^^model.biomass.native <-(lmer(log(total.biomass.rounded.percap)~bkgrd * origin + (1|phyto) + (1|block), data=all.bkgrd[all.bkgrd$treatment == "C"))
+#@Carmen - why did we choose control treatment and not drought? (maybe we wanted to see generally the interaction between species without the effect of rainfall/less rainfall)
+
 plot(fitted(model.biomass.native), resid(model.biomass.native))
 qqnorm(resid(model.biomass.native))
 qqline(resid(model.biomass.native))
 summary(model.biomass.native)
 
 pairs(emmeans(model.biomass.native,~bkgrd),adjust="BH")
-#natives are doing better in Stipa than BRHO, and mid in Control 
+#natives are doing better in Stipa than BRHO, and mid in Control
+
+###MAY COMMENT
+#if the estimate is negative, then you know the BRHO is smaller 
+# Example: BRHO (10) - Control (15) = -5, meaning Control had higher biomass (meaning native phytometer species had more biomass growth under Control)
 
 model.biomass.native.treatment <-(lmer(log(total.biomass.rounded.percap)~bkgrd + treatment + (1|phyto) + (1|block), data=all.bkgrd[all.bkgrd$origin == "non_native",]))
 # "," means take all the rows where treatment = C (anything after the comma, it would look for just columns)
@@ -107,16 +212,72 @@ qqnorm(resid(model.biomass.3.C))
 qqline(resid(model.biomass.3.C))
 summary(model.biomass.3.C)
 
-model.biomass.3.D <-(lmer(log(total.biomass.rounded.percap)~bkgrd + treatment + origin + (1|phyto) + (1|block), data=all.bkgrd))
+model.biomass.3.D <-(lmer(log(total.biomass.rounded.percap)~bkgrd * treatment + treatment * origin + (1|phyto) + (1|block), data=all.bkgrd))
 plot(fitted(model.biomass.3.D), resid(model.biomass.3.D))
 qqnorm(resid(model.biomass.3.D))
 qqline(resid(model.biomass.3.D))
+anova(model.biomass.3.D)
 summary(model.biomass.3.D)
+#Intercept here: bkgrdBRHO
+
+###MAY COMMENT 
+#if I want all two way interactions, and not a three way interaction, bkgrd*treatment*origin - bkgrd:treatment:origin - bkgrd:origin
+#^this is the same as model.biomass.3.D, just different way of writing 
+#the ":" just means interaction, "*" compare all the main effects, AND the interactions 
 
 anova(model.biomass.3.D)
 #no effect of origin 
+
+###MAY COMMENT
+#run emmmeans on background and treatment separately and background+treatment
+
+
+#Chhaya notes: drought just means lower biomass; no interaction between treatment and origin; but who your neighbors are does matter (native species=doing well)...we thought interactions might matter (that's why we included them), even though they don't matter...even though there's no overall significant effect of origin, we are interested in how backgrounds and treatments affect native and non-native species (motivation for the post-hoc ones...these came after model 3.D because we had three different backgrounds (increases complexity of analysis), and compared this to origin). 
+
+#TO-DO
+#Create two figures (use means and se) for native and non-native using background and treatment (use summary data frames from CNGA code...groupby (native/non-natives, treatment)). 
+
+calcSE<-function(x){
+  x2<-na.omit(x)
+  sd(x2)/sqrt(length(x2))
+}
+
+native_plot<-all.bkgrd %>%
+  filter(origin!="non_native") %>%
+  group_by(phyto, bkgrd, origin, treatment) %>% 
+  summarize(mean_biomass=mean(total.biomass.rounded.percap, na.rm = TRUE), se_biomass=calcSE(total.biomass.rounded.percap)) %>%
+  mutate(bkgrd=ifelse(bkgrd=="BRHO", "Bromus", ifelse(bkgrd=="Stipa", "Nassella", bkgrd)))
+
+non_native_plot<-all.bkgrd %>%
+  filter(origin!="native") %>%
+  group_by(phyto, bkgrd, origin, treatment) %>% 
+  summarize(mean_biomass=mean(total.biomass.rounded.percap, na.rm = TRUE), se_biomass=calcSE(total.biomass.rounded.percap)) %>%
+  mutate(bkgrd=ifelse(bkgrd=="BRHO", "Bromus", ifelse(bkgrd=="Stipa", "Nassella", bkgrd)))
+
+ggplot(native_plot,aes(x=bkgrd, y=mean_biomass, color=treatment))+
+  geom_point(size=3)+ #size can be adjusted here!
+  geom_errorbar(aes(ymin=mean_biomass-se_biomass, ymax=mean_biomass+se_biomass), width = 0.25)+ 
+  facet_wrap(vars(phyto), scales="free")+
+  theme_bw()+
+  ylab("Total Biomass Per Capita")+
+  xlab("Background")+
+  labs(color = "Precipitation Treatment")+
+  scale_color_manual(values = c("#008080", "#CA562C"), labels = c("Control", "Drought"))+
+  theme(legend.position = "bottom") 
+
+ggplot(non_native_plot,aes(x=bkgrd, y=mean_biomass, color=treatment))+
+  geom_point(size=3)+ #size can be adjusted here!
+  geom_errorbar(aes(ymin=mean_biomass-se_biomass, ymax=mean_biomass+se_biomass), width = 0.25)+ 
+  facet_wrap(vars(phyto), scales="free")+
+  theme_bw()+
+  ylab("Total Biomass Per Capita")+
+  xlab("Background")+
+  labs(color = "Precipitation Treatment")+
+  scale_color_manual(values = c("#008080", "#CA562C"), labels = c("Control", "Drought"))
+
 anova(model.biomass.3.C,model.biomass.3.D)
 #the effect of background does not affect the effect of treatment 
+
 
 library(emmeans) 
 pairs(emmeans(model.biomass.3.D,~bkgrd),adjust="BH")
