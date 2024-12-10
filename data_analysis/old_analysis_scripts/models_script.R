@@ -8,16 +8,24 @@
 #7. Look at summary; in Fixed effects section, look at Estimates and Pr(>t)
 #8. If you have any variables with more than two levels (ex.intercept (control), treatmentD), and they are categorical, you will need to do contrasts. 
 
+# Set up ####
+## clean environment
+rm(list=ls())
+
+## load packages
 library(lmerTest)
 library(dplyr)
 library(lme4)
 library(MuMIn)
-rm(list=ls())
 library(emmeans)
 library(ggplot2)
 library(car)
+
+## read in data
 source("data_cleaning/QAQC.R")
 #source = this is how you connect scripts together 
+
+# Model ####
 hist(all.bkgrd$total.biomass.rounded.percap)
 hist(log(all.bkgrd$total.biomass.rounded.percap))
 #taking a log of a number less than 1 gives you a negative value 

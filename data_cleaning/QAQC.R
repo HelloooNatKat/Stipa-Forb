@@ -6,59 +6,21 @@ calcSE<-function(x){
   sd(x2)/sqrt(length(x2))
 }
 
+## check for NAs in total biomass per capita
 no_total_biomass <- all.bkgrd %>%
   filter(is.na(total.biomass.rounded.percap))
+    ## no NAs here, good!
 
+## check total biomass values for each species
 ggplot(all.bkgrd, aes(x=phyto, y=total.biomass.rounded.percap)) + 
   geom_boxplot() 
+    ## MAEL much larger values than other species (makes sense)
 
+## check that all sp have values for all rainfall and background treatments
 ggplot(all.bkgrd, aes(x=treatment, y=total.biomass.rounded.percap, color=bkgrd)) + 
   geom_boxplot() +
   facet_wrap(~phyto, scales="free")
-#check for LENI; it's missing Stipa 
+    ## TWIL C has no control background data...
 
-
-## hypothesis (1a): native forb species will perform better in Stipa pulchra backgrounds than in Bromus hordeaceus backgrounds because of historical plant community relations
-
-ggplot(all.bkgrd[all.bkgrd$origin %in% "native",], aes(x=bkgrd, y=total.biomass.rounded.percap)) + 
-  geom_boxplot() +
-  facet_wrap(~phyto, scales="free") +
-  scale_y_log10() +
-  theme_bw()
-
-ggsave("native_forbs_bkgrd.png", height = 4, width = 7)
-
-
-ggplot(all.bkgrd[all.bkgrd$origin %in% "native",], aes(x=treatment, y=total.biomass.rounded.percap, color = bkgrd)) + 
-  geom_boxplot() +
-  facet_wrap(~phyto, scales="free") +
-  scale_y_log10() +
-  theme_bw()
-
-ggsave("native_forbs_trt_by_bkgrd.png", height = 4, width = 7)
-
-## hypothesis (1b): non-native grasses will perform equally well in native and non-native backgrounds due to high seed output and survival rate
-
-ggplot(all.bkgrd[all.bkgrd$origin %in% "non_native" & all.bkgrd$functional_group %in% "grass",], aes(x=bkgrd, y=total.biomass.rounded.percap)) + 
-  geom_boxplot() +
-  facet_wrap(~phyto, scales="free")
-
-## hypothesis (2a): all species will perform worse under drought due to overall stress from drought conditions and competition with background species
-ggplot(all.bkgrd, aes(x=treatment, y=total.biomass.rounded.percap)) + 
-  geom_boxplot() +
-  facet_wrap(~phyto, scales="free") +
-  scale_y_log10() 
-
-## hypothesis (2b): native forbs may be less affected by drought conditions than non-native grasses due to local adaptations
-ggplot(data=all.bkgrd[!all.bkgrd$phyto %in% c("ANAR","THIR"),], aes(x=treatment, y=total.biomass.rounded.percap, color=origin)) + 
-  geom_boxplot() +
-  facet_wrap(~phyto, scales="free") +
-  scale_y_log10() 
-
-ggplot(data=all.bkgrd[!all.bkgrd$phyto %in% c("ANAR","THIR"),], aes(x=treatment, y=total.biomass.rounded.percap)) + 
-  geom_boxplot() +
-  facet_wrap(~functional_group, scales="free") +
-  scale_y_log10() 
-
-
-
+## clean env
+rm(no_total_biomass)
