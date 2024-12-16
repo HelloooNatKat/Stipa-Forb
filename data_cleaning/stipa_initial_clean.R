@@ -107,13 +107,18 @@ maelC <- mael %>%
          scale.ID = NA) %>%
   select(block, plot, sub, bkgrd, dens, phyto, phyto.n.indiv, phyto.unique, complete., total.biomass.g, total.stem.length.mm, empty.flower.num, flower.num, scale.ID, inflor.g, seed.num, process.notes, census.notes)
 
-
+unique(pler$complete.)
+pler
+## changing all samples to complete as the number of seeds missing relative to the total number of seeds is quite small. They should be roughly the correct weight.
+## change made by CW 12/16
 plerC <- pler %>%
   mutate(total.stem.length.mm = NA,
          scale.ID = NA,
          phyto.n.indiv = phyto,
-         phyto = "PLER") %>%
+         phyto = "PLER",
+         complete. = "Y") %>% ## change all samples to complete here. 
   select(block, plot, sub, bkgrd, dens, phyto, phyto.n.indiv, phyto.unique, complete., total.biomass.g, total.stem.length.mm, empty.flower.num, flower.num, scale.ID, inflor.g, seed.num, process.notes, census.notes)
+unique(plerC$complete.)
   
 thirC <- thir %>%
   mutate(total.stem.length.mm = NA,

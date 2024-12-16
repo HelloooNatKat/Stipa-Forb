@@ -1,8 +1,8 @@
 ## Header 
 ## 
-## Script Name: SF.Final.Figures
+## Script Name: Biomass figures
 ##
-## Script Description: Calculate the relative interaction intensity (Armas et al. 2004) and make figures
+## Script Description: make biomass figures
 ##
 ## Script Notes: 
 ## statistical model has been moved to 'models.R' script! - CW 12/10
@@ -33,7 +33,7 @@ library(car)
 library(ggpubr)
 
 ## read in cleaned data
-source("data_cleaning/QAQC.R")
+source("data_cleaning/calculate_RII.R")
 
 ## create standard error function
 calcSE<-function(x){
@@ -43,40 +43,6 @@ calcSE<-function(x){
 
 ## set theme for plots
 theme_set(theme_classic())
-
-# Calc RII ####
-## calculate relative interaction intensity
-relative = all.bkgrd %>%
-  select(block, phyto, bkgrd, treatment, total.biomass.rounded.percap, origin, functional_group) %>%
-  group_by(block, phyto, bkgrd, treatment, origin, functional_group) %>%
-  
-  ## calc mean biomass for a species at the block level
-  summarise(mean.block.bio = mean(total.biomass.rounded.percap)) %>%
-  
-  ## pivot wider to make separate columns for biomass in BRHO, Stipa, and Control
-  pivot_wider(names_from = "bkgrd", values_from = mean.block.bio) %>%
-  
-  ## with these columns calculate the relative interaction intensity
-  mutate(RII_BRHO = (BRHO - Control)/(BRHO + Control),
-         RII_Stipa = (Stipa - Control)/(Stipa + Control))
-
-## summarise
-relative_sum = relative %>%
-  select(-BRHO, -Control, -Stipa) %>%
-  
-  ## put both RII in the same column
-  pivot_longer(cols = c("RII_BRHO", "RII_Stipa"), names_to = "Background", values_to = "RII") %>%
-  
-  ## calculate the mean RII value for each species in each background
-  group_by(phyto, Background, treatment, origin, functional_group) %>%
-  summarise(mean_RII = mean(RII, na.rm = TRUE),
-            se_RII = calcSE(RII)) %>%
-  
-  ## rename columns for graphing
-  mutate(treatment = ifelse(treatment == "C", "Ambient", "Drought"), 
-         Background = ifelse(Background == "RII_BRHO", "Bromus", "Stipa"), 
-         origin = ifelse(origin == "native", "Native", "Non-Native"))
-
 
 # Figures ####
 ## Hypotheses ####
@@ -90,44 +56,6 @@ relative_sum = relative %>%
 ## Hypothesis 2: 
 #Hypothesis (2a) drought will reduce biomass in all species, particularly in those growing in Bromus hordaceous backgrounds compared to Stipa pulchra. 
 #Hypothesis (2b) native species may be less affected by drought conditions than non-native species due to local adaptations. 
-
-## Figure 1: ####
-## Note for Nat: I learned how to make a summary dataframe for a figure without having to save a new object! I can edit the relative_sum dataframe and use a pipe (%>%) to put it directly into ggplot. 
-relative_sum %>%
-  
-  ## calculate mean RII across species (within their respective origins & backgrounds)
-  group_by(treatment, Background, origin) %>%
-  summarise(RII_overall = mean(mean_RII, na.rm = T), 
-            se_RII_overall = calcSE(mean_RII)) %>%
-  
-  ## Plot!
-  ggplot(aes(x=origin, y=RII_overall, color = Background, shape = origin)) +
-  geom_hline(yintercept = 0, linetype = "dashed")+
-  geom_point(size = 3) +
-  geom_errorbar(aes(ymin = RII_overall - se_RII_overall, ymax = RII_overall + se_RII_overall), width = 0.2) +
-  scale_color_manual(values = c("#E58606", "#5D69B1")) +
-  xlab("Focal Species Origin") +
-  ylab("Mean Relative Interaction Intensity") +
-  theme(text = element_text(size = 15)) +
-  scale_shape_manual(values = c(19, 15)) +
-  facet_wrap(~treatment) +
-  labs(shape = "Origin")
-
-## save the figure - the line is commented out so we don't re-save a new version every time you run the script
-## ggsave("preliminary_figures/figure1_RII_trt_origin_background.png", width = 8, height = 4)
-
-
-## Figure 2: ####
-## species specific RII patterns  
-ggplot(relative_sum, aes(x=phyto, y=mean_RII, color = Background)) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(size = 3) +
-  scale_color_manual(values = c("#E58606", "#5D69B1")) +
-  facet_wrap(~treatment) +
-  geom_errorbar(aes(ymin = mean_RII - se_RII, ymax = mean_RII + se_RII)) +
-  ylab("Relative Interaction Intensity") +
-  xlab("Focal Species")
-
 
 ## Biomass Figs ####
 ### species separate ####
