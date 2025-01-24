@@ -6,6 +6,8 @@ source("data_analysis/calculate_RII.R")
 ## load packages
 library(ggpubr)
 
+theme_set(theme_classic())
+
 # Create Figs ####
 ## Figure 1 ####
 RII_sum %>%

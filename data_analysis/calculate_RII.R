@@ -470,7 +470,7 @@ lomu_b3C2 = lomu_b3C %>% ## change
          total.biomass.rounded.percap = lomuCmean[lomuCmean$treatment == "D",]$mC)
 
 ## block 4
-lomu_b4C = lomuB[lomuS$block == 1 & lomuB$bkgrd == "Control",] ## select a row to change values in
+lomu_b4C = lomuB[lomuB$block == 1 & lomuB$bkgrd == "Control",] ## select a row to change values in
 lomu_b4C2 = lomu_b4C %>% ## change
   mutate(block = 4, 
          total.biomass.rounded.percap = lomuCmean[lomuCmean$treatment == "D",]$mC)
